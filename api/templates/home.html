@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+
+    <title>Tasks</title>
+
+    <style>
+        .edit{
+            cursor: pointer
+        }
+    </style>
+
+</head>
+<body>
+
+<div class="ui teal item inverted menu" style="border-radius: 0;background: teal;min-height: 70px">
+    <h2 style="color: #fff;margin-top: 17px">Task Manager</h2>
+</div>
+
+<div class="ui container">
+
+    <div class="ui two column stackable grid">
+        <div class="column">
+            <div>
+                <form action="#" method="POST" id="task_form">
+                    {% csrf_token %}
+                Create Task
+                <div class="ui input">
+                    <input id="post_task_name" name="name">
+                    <button class="ui tiny blue button" id="create_btn">Create</button>
+                </div>
+                </form>
+            </div>
+            <table class="ui celled table">
+              <thead>
+                <tr><th>ID</th>
+                <th>Name</th>
+                <th>Completed?</th>
+                <th>Actions</th>
+              </tr></thead>
+              <tbody id="tb_body">
+              </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+
+
+<script type="text/javascript">
+
+    $.ajax({
+      type: 'GET',
+      url: "/api/tasks/" ,
+      dataType: 'json',
+      success: function (response) {
+        $.each(response, function(i, item) {
+            var done = "<i class='large green checkmark icon task_status' id='status_"+item.id+"'></i>";
+            var action_btn = "<button class='blue ui basic mini button action_btn' id='action_"+item.id+"' onClick=change_status("+item.id+")><i class='icon clock'></i> Mark Pending</button>";
+            if (!item.completed){
+                done = "<i class='large blue clock icon task_status' id='status_"+item.id+"'></i>";
+                action_btn = "<button class='mini green ui basic button action_btn' id='action_"+item.id+"' onClick=change_status("+item.id+")><i class='icon checkmark'></i> Mark Done</button>";
+            }
+            var delete_btn = "<button class='ui mini red button'><i class='icon trash alternate outline'></i></button>"
+            var $tr = $('<tr>').append(
+                $('<td>').text(item.id),
+                $('<td id="task_'+item.id+'">').text(item.name),
+                $('<td class="center aligned">').html(done),
+                $('<td>').html("Edit <i class='edit blue icon edit_icon' onClick=edit_task("+item.id+")></i> &nbsp;"+action_btn+delete_btn)
+            ).appendTo('#tb_body');
+        });
+      }
+    });
+
+
+</script>
+</body>
+</html>
