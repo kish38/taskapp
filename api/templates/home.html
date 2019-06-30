@@ -78,6 +78,65 @@
       }
     });
 
+    $("#task_form").submit(function(e){
+
+      var action_btn = "<button class='mini green ui basic button action_btn' id='action_"+4+"' onClick=change_status("+4+")><i class='icon checkmark'></i> Mark Done</button>";
+      $.post("/api/tasks/", data=$("#task_form").serialize(), function(response){
+        var $tr = $('<tr>').append(
+            $('<td>').text(response.id),
+                $('<td id="task_'+response.id+'">').text($("#post_task_name").val()),
+                $('<td class="center aligned">').html("<i class='large blue clock icon task_status' id='status_"+response.id+"'></i>"),
+                $('<td>').html("Edit <i class='edit blue icon edit_icon' onClick=edit_task("+response.id+")></i> &nbsp;"+action_btn)
+        ).appendTo('#tb_body');
+        $("post_task_name").val("");
+      });
+      return false;
+
+    });
+
+    function change_status(task_id){
+        var action_btn = $('#action_'+task_id);
+        if(action_btn.hasClass('green')){
+            $.ajax({
+                url: "/api/tasks/"+task_id,
+                type: "PUT",
+                data: {"completed": true, "name": $("#task_"+task_id).text()},
+                error: function(response){
+                    alert("Got some error");
+                }
+            });
+
+            action_btn.html("<i class='icon clock'></i> Mark Pending");
+            action_btn.removeClass("green");
+            action_btn.addClass("blue");
+
+            $("#status_"+task_id).removeClass("blue");
+            $("#status_"+task_id).addClass("green");
+            $("#status_"+task_id).removeClass("clock");
+            $("#status_"+task_id).addClass("checkmark");
+        }
+        else{
+
+            $.ajax({
+                url: "/api/tasks/"+task_id,
+                type: "PUT",
+                data: {"completed": false, "name": $("#task_"+task_id).text()},
+                error: function(response){
+                    alert("Got some error");
+                }
+            });
+
+            action_btn.html("<i class='icon checkmark'></i> Mark Done")
+            action_btn.removeClass("blue");
+            action_btn.addClass("green");
+
+            $("#status_"+task_id).removeClass("green");
+            $("#status_"+task_id).addClass("blue");
+            $("#status_"+task_id).removeClass("checkmark");
+            $("#status_"+task_id).addClass("clock");
+        }
+    }
+
 
 </script>
 </body>
