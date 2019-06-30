@@ -38,3 +38,27 @@ class TaskAPITests(APITestCase):
         req = self.client.get(reverse('list-tasks'))
         self.assertEqual(req.status_code, 200)
         self.assertEqual(serialized.data, req.data)
+
+    def test_create_tasks(self):
+        req = self.client.post(reverse('list-tasks'), data={'name': 'New Task'})
+        self.assertEqual(req.status_code, 201)
+        tasks = Task.objects.count()
+        self.assertEqual(tasks, 3)
+
+    def test_get_a_task(self):
+        task = Task.objects.first()
+        req = self.client.get(reverse('get-task', args=[task.id]))
+        self.assertEqual(req.status_code, 200)
+        self.assertEqual(req.data['name'], task.name)
+
+    def test_update_a_task(self):
+        task = Task.objects.first()
+        req = self.client.patch(reverse('get-task', args=[task.id]), data={'name': 'First task'})
+        self.assertEqual(req.status_code, 200)
+        self.assertEqual(req.data['name'], 'First task')
+
+    def test_delete_a_task(self):
+        task = Task.objects.first()
+        req = self.client.delete(reverse('get-task', args=[task.id]))
+        self.assertEqual(req.status_code, 204)
+        self.assertEqual(1, Task.objects.count())
